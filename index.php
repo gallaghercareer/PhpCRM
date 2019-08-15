@@ -1,49 +1,59 @@
 <?php
+/*
+Author: John Gallagher
+Purpose: The application is a employee management system for a business owner. This page is used to insert data into a database using a form.
+Date: 8/1/2019
+*/
 
 require_once('PhpCrudDSN.php');
-if(isset($_POST['submit'])){
-    if(!empty($_POST['employeeName']) && !empty($_POST['id'])) {
+
+if(isset($_POST['submit'])) {
+    //Validate to ensure that employeeName and ssn are not empty
+    if (!empty($_POST['employeeName']) && !empty($_POST['ssn'])) {
+
         $employeeName = $_POST['employeeName'];
-        $id = $_POST['id'];
+        $ssn = $_POST['ssn'];
         $department = $_POST['department'];
         $salary = $_POST['salary'];
         $homeAddress = $_POST['homeaddress'];
 
-        //Use the DSN in this file that was imported via require_once
-        $ConnectingDB;
+        //Here we are setting the PDO to report errors retrieved from the database drivers.
+        $ConnectingDB->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);;
 
-        //Insert Data into Database
+        //Step 1: Create Insert SQL code with Prepared Statements
+        $sql = "INSERT INTO emp_record(employeeName, ssn, department, salary, homeaddress)
+        VALUES(:employeeName, :ssn, :department,:salary,:homeaddress)";
 
-        //Step 1: Create Insert Statement with Prepared ":column" in the value
-        $sql = "INSERT INTO emp_record(employeeName, id, department, salary, homeaddress)
-        VALUES(:employeeName, :id, :department,:salary,:homeaddress)";
+        //Step 2: Prepare() SQL statement
+        $stmt = $ConnectingDB->prepare($sql);
 
-        //Step 2: Create a $stmt variable, assigning to it the DSN object using the method prepare() with the sql statement in it
-        $stmt=$ConnectingDB->prepare($sql);
-
-        //Step 3: Bind the values. The first parameter reflects the ":column" of the sql statment, the second represents the variable received from teh form
+        //Step 3: Bind the values
         $stmt->bindValue(':employeeName', $employeeName);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':ssn', $ssn);
         $stmt->bindValue(':department', $department);
         $stmt->bindValue(':salary', $salary);
         $stmt->bindValue(':homeaddress', $homeAddress);
 
         //Step 4: Execute and complete
-        $execute=$stmt->execute();
-        if($execute) {
-            echo "<span class='successInfo'> Success </span>";
+        $Execute = $stmt->execute();
+
+        //Step 5: Validate SQL insert success
+        if (!$Execute) {
+            echo "\nPDO::errorInfo():\n";
+            print_r($ConnectingDB->errorInfo());
         }
         else {
-            echo "<span class='failureInfo'> Insert not successful </span>";
+            Echo "Success";
         }
-
+        //Validate message ensuring ID/SSN form inputs are not empty.
+     } else {
+            echo "<span class='failureInfo'> The ID and Name are minimum requirements to submit form </span>";
+        }
     }
-    else {
-        echo "<span class='failureInfo'> The ID and Name are minimum requirements to submit form </span>";
-    }
-}
 
 ?>
+
+<!-- The HTML code below shows a form that will be submitted for insert data into database-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -56,16 +66,16 @@ if(isset($_POST['submit'])){
 </head>
 <body>
 <div class="">
-    <form class="" action="PhpInsert.php" method="post">
+    <form class="" action="index.php" method="post">
         <fieldset>
             <span class="FieldInfo">Employee Name</span>
             <br>
             <input type="text" name="employeeName">
             <br>
             <br>
-            <span class="FieldInfo">Employee ID</span>
+            <span class="FieldInfo">SSN</span>
             <br>
-            <input type="number" name="id">
+            <input type="text" name="ssn">
             <br>
             <br>
             <span class="FieldInfo">Department</span>
@@ -75,7 +85,7 @@ if(isset($_POST['submit'])){
             <br>
             <span class="FieldInfo">Salary</span>
             <br>
-            <input type="number" name="salary" step="0.01">
+            <input type="text" name="salary">
             <br>
             <br>
             <span class="FieldInfo">Home Address</span>
@@ -91,4 +101,3 @@ if(isset($_POST['submit'])){
 </div>
 </body>
 </html>
-<?php

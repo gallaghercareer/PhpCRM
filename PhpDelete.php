@@ -1,30 +1,34 @@
 <?php
+/*
+Author: John Gallagher
+Purpose: The application is a employee management system for a business owner. This page is used to delete data from the employee database.
+Date: 8/1/2019
+*/
 require_once('PhpCrudDSN.php');
 
-//Search Parameter from the View Table
-$searchQueryParameter= $_GET['id'];
+//GET array value from PhpView.php
+$searchQueryParameter= $_GET['ssn'];
 
+//Delete selected row once form submit button is clicked.
 if(isset($_POST['submit'])){
-        //No need to validate for username or id in the UPDATE page bc we have to have an already existing id/name
         $employeeName = $_POST['employeeName'];
-        $id = $_POST['id'];
+        $ssn = $_POST['ssn'];
         $department = $_POST['department'];
         $salary = $_POST['salary'];
         $homeAddress = $_POST['homeaddress'];
 
-        //Use the DSN in this file that was imported via require_once
+        //DSN
         $ConnectingDB;
 
-        //Update Data into Database
+        //Step 1: Create SQL Delete Statement
+        $sql = "DELETE FROM emp_record WHERE ssn='$searchQueryParameter'";
 
-        //Step 1: Create Delete Statement
-        $sql = "DELETE FROM emp_record WHERE id='$searchQueryParameter'";
-
-        //Step 2: Create a $stmt variable, assigning to it the DSN object using the method prepare() with the sql statement in it
+        //Step 2: Query() SQL Statement
         $execute=$ConnectingDB->query($sql);
 
+        //Step 3: Validate query() was successful in a new window.
         if($execute) {
-            echo "<script>window.open('PhpView.php?id=Record Deleted Successfully', '_self')</script>";
+            echo "<script>window.open('PhpView.php?ssn=Record Deleted Successfully', '_self')</script>";
         }
 }
 
@@ -42,13 +46,14 @@ if(isset($_POST['submit'])){
 <body>
 
 <?php
-$ConnectingDB;
-$sql="SELECT * FROM emp_record WHERE id='$searchQueryParameter'";
+//The PHP/HTML code below populates the form with row data. The data is from the row selected for deletion.
+
+$sql="SELECT * FROM emp_record WHERE ssn='$searchQueryParameter'";
 $stmt=$ConnectingDB->query($sql);
 
 while($dataRows = $stmt->fetch()) {
     $employeeName = $dataRows['employeeName'];
-    $id = $dataRows['id'];
+    $ssn = $dataRows['ssn'];
     $department = $dataRows['department'];
     $salary = $dataRows['salary'];
     $homeAddress = $dataRows['homeaddress'];
@@ -56,16 +61,16 @@ while($dataRows = $stmt->fetch()) {
 ?>
 
 <div class="">
-    <form class="" action="PhpDelete.php?id=<?php echo $searchQueryParameter;?>" method="post">
+    <form class="" action="PhpDelete.php?ssn=<?php echo $searchQueryParameter;?>" method="post">
         <fieldset>
             <span class="FieldInfo">Employee Name</span>
             <br>
             <input type="text" name="employeeName" value="<?php echo htmlentities($employeeName, ENT_QUOTES | ENT_HTML5, 'UTF-8');?>">
             <br>
             <br>
-            <span class="FieldInfo">Employee ID</span>
+            <span class="FieldInfo">Employee SSN</span>
             <br>
-            <input type="number" name="id" value="<?php echo htmlentities($id, ENT_QUOTES | ENT_HTML5, 'UTF-8');  ?>">
+            <input type="number" name="ssn" value="<?php echo htmlentities($ssn, ENT_QUOTES | ENT_HTML5, 'UTF-8');  ?>">
             <br>
             <br>
             <span class="FieldInfo">Department</span>
