@@ -4,7 +4,7 @@ Author: John Gallagher
 Purpose: The application is a employee management system for a business owner. This page is used to view data from the employee database.
 Date: 8/1/2019
 */
-
+//comment
 require_once('PhpCrudDSN.php');
 ?>
 <!doctype html>
